@@ -129,6 +129,12 @@ FinTrack
   <img width="1918" height="944" alt="Evolução Financeira" src="https://github.com/user-attachments/assets/cbe4771c-a41a-4fdf-9330-c3a240f5c7f5" />
 </p>
 
+## 🌐 Demonstração
+
+Acesse o projeto online:
+
+https://gabriel17gos.github.io/FinTrack/
+
 ## ▶️ Como Executar
 
 Clone o repositório:
