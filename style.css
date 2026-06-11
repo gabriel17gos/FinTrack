@@ -1422,6 +1422,19 @@ body {
 }
 
 /* ==========================================================================
+   SIDEBAR MENU WRAPPER
+   ========================================================================== */
+.sidebar-menu-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.mobile-nav-toggle {
+    display: none;
+}
+
+/* ==========================================================================
    RESPONSIVENESS & MEDIA QUERIES
    ========================================================================== */
 @media (max-width: 1200px) {
@@ -1441,41 +1454,78 @@ body {
 
     .sidebar {
         width: 100%;
-        height: auto;
+        height: 70px;
         border-right: none;
         border-bottom: 1px solid var(--card-border);
-        position: relative;
-        padding: 20px 24px;
+        position: sticky;
+        top: 0;
+        padding: 0 24px;
+        display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
+        background: var(--bg-app);
+        backdrop-filter: blur(var(--blur-intensity));
+        -webkit-backdrop-filter: blur(var(--blur-intensity));
+        z-index: 1000;
     }
 
     .brand {
         margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .sidebar-menu-wrapper {
+        display: none;
+    }
+
+    .sidebar-menu-wrapper.mobile-active {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 70px);
+        background: var(--bg-app);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 24px;
+        border-top: 1px solid var(--card-border);
+        border-bottom: 1px solid var(--card-border);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        overflow-y: auto;
+        gap: 24px;
+        animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .nav-menu {
-        display: none;
-        /* In production mobile layout, we will display an elegant toggle or scroll menu */
-    }
-
-    .nav-menu.mobile-active {
-        display: flex;
-        position: absolute;
-        top: 80px;
-        left: 0;
-        width: 100%;
-        background: var(--bg-app);
-        padding: 16px 24px;
-        border-bottom: 1px solid var(--card-border);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        flex-grow: 0;
+        gap: 12px;
     }
 
     .sidebar-footer {
-        flex-direction: row;
-        align-items: center;
-        gap: 12px;
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid var(--card-border);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .main-wrapper {
@@ -1490,45 +1540,94 @@ body {
     .categories-manager-grid {
         grid-template-columns: 1fr;
     }
+
+    .mobile-nav-toggle {
+        display: block;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: background-color var(--transition-fast);
+    }
+
+    .mobile-nav-toggle:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    [data-theme="light"] .mobile-nav-toggle:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
 }
 
 @media (max-width: 600px) {
     .metrics-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
     .app-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 16px;
     }
 
     .header-actions {
+        flex-direction: column;
         width: 100%;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .month-selector-widget {
         justify-content: space-between;
+        width: 100%;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+        justify-content: center;
     }
 
     .expenses-controls {
         flex-direction: column;
+        gap: 12px;
+    }
+
+    .search-box-wrapper {
+        width: 100%;
     }
 
     .filter-select {
         width: 100%;
     }
-}
 
-/* Hamburger menu button for mobile */
-.mobile-nav-toggle {
-    display: none;
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    font-size: 24px;
-    cursor: pointer;
-}
+    .modal-box {
+        padding: 20px;
+        gap: 16px;
+        width: 92%;
+        margin: 10px;
+        max-height: 85vh;
+    }
 
-@media (max-width: 900px) {
-    .mobile-nav-toggle {
-        display: block;
+    .expenses-table th, 
+    .expenses-table td {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+
+    .expense-row-date {
+        font-size: 11px;
+    }
+
+    .expense-category-pill {
+        padding: 2px 6px;
+        font-size: 10px;
     }
 }
 

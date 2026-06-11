@@ -3230,6 +3230,43 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // 10. Mobile Navigation Toggle
+    const mobileNavToggle = document.getElementById("mobileNavToggle");
+    const sidebarMenuWrapper = document.getElementById("sidebarMenuWrapper");
+    const mobileNavToggleIcon = document.getElementById("mobileNavToggleIcon");
+
+    if (mobileNavToggle && sidebarMenuWrapper) {
+        mobileNavToggle.addEventListener("click", () => {
+            const isActive = sidebarMenuWrapper.classList.toggle("mobile-active");
+            if (mobileNavToggleIcon) {
+                if (isActive) {
+                    mobileNavToggleIcon.setAttribute("data-lucide", "x");
+                } else {
+                    mobileNavToggleIcon.setAttribute("data-lucide", "menu");
+                }
+                lucide.createIcons();
+            }
+        });
+
+        const closeMobileNav = () => {
+            if (sidebarMenuWrapper.classList.contains("mobile-active")) {
+                sidebarMenuWrapper.classList.remove("mobile-active");
+                if (mobileNavToggleIcon) {
+                    mobileNavToggleIcon.setAttribute("data-lucide", "menu");
+                    lucide.createIcons();
+                }
+            }
+        };
+
+        document.querySelectorAll("#navMenu li").forEach(li => {
+            li.addEventListener("click", closeMobileNav);
+        });
+
+        document.querySelectorAll("#sidebarMenuWrapper button").forEach(btn => {
+            btn.addEventListener("click", closeMobileNav);
+        });
+    }
+
     // Render initial viewport
     refreshUI();
 });

@@ -26,68 +26,73 @@
         <!-- ==========================================================================
              SIDEBAR NAVIGATION
              ========================================================================== -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="brand">
                 <div class="brand-icon">
                     <img src="icon.png" style="width: 36px; height: 36px; border-radius: 10px;">
                 </div>
                 <div class="brand-name">FinTrack</div>
+                <button id="mobileNavToggle" class="mobile-nav-toggle" aria-label="Abrir Menu">
+                    <i data-lucide="menu" id="mobileNavToggleIcon"></i>
+                </button>
             </div>
 
-            <nav>
-                <ul class="nav-menu" id="navMenu">
-                    <li class="nav-item active" data-tab="dashboard">
-                        <a>
-                            <i data-lucide="layout-dashboard"></i>
-                            <span>Visão Geral</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" data-tab="comparison">
-                        <a>
-                            <i data-lucide="bar-chart-3"></i>
-                            <span>Comparativo</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" data-tab="categories">
-                        <a>
-                            <i data-lucide="tags"></i>
-                            <span>Categorias</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" data-tab="evolution">
-                        <a>
-                            <i data-lucide="trending-up"></i>
-                            <span>Evolução</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            <div class="sidebar-menu-wrapper" id="sidebarMenuWrapper">
+                <nav>
+                    <ul class="nav-menu" id="navMenu">
+                        <li class="nav-item active" data-tab="dashboard">
+                            <a>
+                                <i data-lucide="layout-dashboard"></i>
+                                <span>Visão Geral</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" data-tab="comparison">
+                            <a>
+                                <i data-lucide="bar-chart-3"></i>
+                                <span>Comparativo</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" data-tab="categories">
+                            <a>
+                                <i data-lucide="tags"></i>
+                                <span>Categorias</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" data-tab="evolution">
+                            <a>
+                                <i data-lucide="trending-up"></i>
+                                <span>Evolução</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
 
-            <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 8px;">
-                <button class="theme-toggle-btn" id="themeToggleBtn">
-                    <span id="themeToggleText">Tema Claro</span>
-                    <i data-lucide="sun" id="themeToggleIcon"></i>
-                </button>
-                <button class="theme-toggle-btn" id="openAlertThresholdModalBtn"
-                    style="border-color: rgba(245, 158, 11, 0.2); color: var(--color-warning);">
-                    <span id="alertThresholdBtnLabel">Alerta de Gastos</span>
-                    <i data-lucide="bell"></i>
-                </button>
-                <button class="theme-toggle-btn" id="openImportModalBtn"
-                    style="border-color: rgba(99, 102, 241, 0.2); color: var(--color-primary);">
-                    <span>Importar CSV</span>
-                    <i data-lucide="upload"></i>
-                </button>
-                <button class="theme-toggle-btn" id="openExportModalBtn"
-                    style="border-color: rgba(16, 185, 129, 0.2); color: var(--color-success);">
-                    <span>Exportar</span>
-                    <i data-lucide="download"></i>
-                </button>
-                <button class="theme-toggle-btn" id="resetDataBtn"
-                    style="border-color: rgba(244, 63, 94, 0.2); color: var(--color-danger);">
-                    <span>Zerar Mês</span>
-                    <i data-lucide="trash-2"></i>
-                </button>
+                <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="theme-toggle-btn" id="themeToggleBtn">
+                        <span id="themeToggleText">Tema Claro</span>
+                        <i data-lucide="sun" id="themeToggleIcon"></i>
+                    </button>
+                    <button class="theme-toggle-btn" id="openAlertThresholdModalBtn"
+                        style="border-color: rgba(245, 158, 11, 0.2); color: var(--color-warning);">
+                        <span id="alertThresholdBtnLabel">Alerta de Gastos</span>
+                        <i data-lucide="bell"></i>
+                    </button>
+                    <button class="theme-toggle-btn" id="openImportModalBtn"
+                        style="border-color: rgba(99, 102, 241, 0.2); color: var(--color-primary);">
+                        <span>Importar CSV</span>
+                        <i data-lucide="upload"></i>
+                    </button>
+                    <button class="theme-toggle-btn" id="openExportModalBtn"
+                        style="border-color: rgba(16, 185, 129, 0.2); color: var(--color-success);">
+                        <span>Exportar</span>
+                        <i data-lucide="download"></i>
+                    </button>
+                    <button class="theme-toggle-btn" id="resetDataBtn"
+                        style="border-color: rgba(244, 63, 94, 0.2); color: var(--color-danger);">
+                        <span>Zerar Mês</span>
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </div>
             </div>
         </aside>
 
