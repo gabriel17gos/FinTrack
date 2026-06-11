@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="FinTrack - O seu dashboard de controle de orçamento e planejamento financeiro pessoal avançado.">
+    <title>FinTrack - Gestão Financeira</title>
+
+    <link rel="icon" type="image/icon" href="icon.png">
+
+    <!-- CSS link -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Chart.js for gorgeous financial charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- ==========================================================================
+             SIDEBAR NAVIGATION
+             ========================================================================== -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <img src="icon.png" style="width: 36px; height: 36px; border-radius: 10px;">
+                </div>
+                <div class="brand-name">FinTrack</div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu" id="navMenu">
+                    <li class="nav-item active" data-tab="dashboard">
+                        <a>
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Visão Geral</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-tab="comparison">
+                        <a>
+                            <i data-lucide="bar-chart-3"></i>
+                            <span>Comparativo</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-tab="categories">
+                        <a>
+                            <i data-lucide="tags"></i>
+                            <span>Categorias</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-tab="evolution">
+                        <a>
+                            <i data-lucide="trending-up"></i>
+                            <span>Evolução</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 8px;">
+                <button class="theme-toggle-btn" id="themeToggleBtn">
+                    <span id="themeToggleText">Tema Claro</span>
+                    <i data-lucide="sun" id="themeToggleIcon"></i>
+                </button>
+                <button class="theme-toggle-btn" id="openAlertThresholdModalBtn"
+                    style="border-color: rgba(245, 158, 11, 0.2); color: var(--color-warning);">
+                    <span id="alertThresholdBtnLabel">Alerta de Gastos</span>
+                    <i data-lucide="bell"></i>
+                </button>
+                <button class="theme-toggle-btn" id="openImportModalBtn"
+                    style="border-color: rgba(99, 102, 241, 0.2); color: var(--color-primary);">
+                    <span>Importar CSV</span>
+                    <i data-lucide="upload"></i>
+                </button>
+                <button class="theme-toggle-btn" id="openExportModalBtn"
+                    style="border-color: rgba(16, 185, 129, 0.2); color: var(--color-success);">
+                    <span>Exportar</span>
+                    <i data-lucide="download"></i>
+                </button>
+                <button class="theme-toggle-btn" id="resetDataBtn"
+                    style="border-color: rgba(244, 63, 94, 0.2); color: var(--color-danger);">
+                    <span>Zerar Mês</span>
+                    <i data-lucide="trash-2"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ==========================================================================
+             MAIN CONTENT AREA
+             ========================================================================== -->
+        <main class="main-wrapper">
+            <!-- App Header -->
+            <header class="app-header">
+                <div class="header-title-section">
+                    <h1 id="pageTitle">Painel de Controle</h1>
+                    <p id="pageSubtitle">Acompanhe seus gastos, saldo e progresso do orçamento.</p>
+                </div>
+
+                <div class="header-actions">
+                    <!-- Month Selector Widget -->
+                    <div class="month-selector-widget">
+                        <button class="month-btn" id="prevMonthBtn" title="Mês Anterior">
+                            <i data-lucide="chevron-left"></i>
+                        </button>
+                        <div class="current-month-display" id="currentMonthDisplay">Maio de 2026</div>
+                        <button class="month-btn" id="nextMonthBtn" title="Próximo Mês">
+                            <i data-lucide="chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Primary Action Buttons -->
+                    <button class="btn btn-primary" id="openAddExpenseModalBtn">
+                        <i data-lucide="minus-circle"></i>
+                        <span>Nova Despesa</span>
+                    </button>
+                    <button class="btn btn-success" id="openAddIncomeModalBtn">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Nova Receita</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ==========================================================================
+                 TOP METRICS CARDS GRID (Always Visible)
+                 ========================================================================== -->
+            <section class="metrics-grid">
+
+                <!-- Total Spent Card -->
+                <div class="metric-card glass-panel"
+                    style="--card-accent: var(--color-danger); --icon-color-rgb: 244, 63, 94;">
+                    <div class="metric-info">
+                        <span class="metric-label">Total Gasto</span>
+                        <span class="metric-value" id="spentCardValue">R$ 0,00</span>
+                        <span class="metric-change" id="spentCountLabel">0 despesas cadastradas</span>
+                    </div>
+                    <div class="metric-icon-box">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                </div>
+
+                <!-- Total Income Card -->
+                <div class="metric-card glass-panel"
+                    style="--card-accent: var(--color-success); --icon-color-rgb: 16, 185, 129;">
+                    <div class="metric-info">
+                        <span class="metric-label">Total de Receitas</span>
+                        <span class="metric-value" id="incomeCardValue">R$ 0,00</span>
+                        <span class="metric-change positive" id="incomeCountLabel">0 receita(s) cadastrada(s)</span>
+                    </div>
+                    <div class="metric-icon-box">
+                        <i data-lucide="banknote"></i>
+                    </div>
+                </div>
+
+                <!-- Remaining Balance Card -->
+                <div class="metric-card glass-panel" id="balanceCard"
+                    style="--card-accent: var(--color-success); --icon-color-rgb: 16, 185, 129;">
+                    <div class="metric-info">
+                        <span class="metric-label">Saldo Disponível</span>
+                        <span class="metric-value" id="balanceCardValue">R$ 0,00</span>
+                        <span class="metric-change" id="balanceStatusText">Dentro do planejado</span>
+                    </div>
+                    <div class="metric-icon-box">
+                        <i data-lucide="piggy-bank"></i>
+                    </div>
+                </div>
+
+                <!-- Period Summary Card (shown when period filter is active with multiple months) -->
+                <div class="metric-card glass-panel" id="periodSummaryCard"
+                    style="display:none; --card-accent: var(--color-primary); --icon-color-rgb: 99, 102, 241;">
+                    <div class="metric-info">
+                        <span class="metric-label">Saldo Acumulado</span>
+                        <span class="metric-value" id="periodSummaryValue">R$ 0,00</span>
+                        <span class="metric-change" id="periodSummaryLabel">no período</span>
+                    </div>
+                    <div class="metric-icon-box">
+                        <i data-lucide="wallet"></i>
+                    </div>
+                </div>
+
+                <!-- Progress/Usage Card -->
+                <div class="metric-card progress-card glass-panel" id="percentageCard"
+                    style="--card-accent: var(--color-info); --icon-color-rgb: 14, 165, 233;">
+                    <div class="metric-info">
+                        <span class="metric-label">% da Receita Gasta</span>
+                        <span class="metric-value" id="percentageCardValue">0%</span>
+                        <span class="metric-change" id="percentageStatusText">Ótimo controle</span>
+                    </div>
+                    <div class="circular-progress-wrapper">
+                        <svg class="circular-progress-svg">
+                            <circle class="circular-progress-bg" cx="40" cy="40" r="36"></circle>
+                            <circle class="circular-progress-fill" id="circularProgressFill" cx="40" cy="40" r="36">
+                            </circle>
+                        </svg>
+                        <div class="progress-text-center" id="progressPercentageText">0%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================================
+                 TAB 1: GENERAL DASHBOARD (Active by Default)
+                 ========================================================================== -->
+            <section class="tab-content active" id="dashboardTab">
+                <!-- Period Filter Bar -->
+                <div class="glass-panel" id="dashboardPeriodFilter" style="margin-bottom: 20px; padding: 16px 20px;">
+                    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <i data-lucide="calendar-range"
+                                style="width:18px; height:18px; color:var(--color-primary);"></i>
+                            <span style="font-size:13px; font-weight:500; color:var(--color-text-secondary);">Filtro de
+                                Período:</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; flex:1; flex-wrap:wrap;">
+                            <select class="form-input" id="dashStartMonth"
+                                style="width:auto; min-width:150px; padding: 6px 12px; font-size:13px;"></select>
+                            <span style="color:var(--color-text-secondary); font-size:13px;">até</span>
+                            <select class="form-input" id="dashEndMonth"
+                                style="width:auto; min-width:150px; padding: 6px 12px; font-size:13px;"></select>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-secondary" id="clearDashPeriodBtn"
+                                style="padding: 6px 14px; font-size:13px;">
+                                <i data-lucide="x"></i> Limpar
+                            </button>
+                        </div>
+                        <span id="dashPeriodActiveLabel"
+                            style="display:none; font-size:12px; color:var(--color-primary); font-weight:500; background:var(--color-background-info); padding:4px 10px; border-radius:20px;">
+                            Período ativo
+                        </span>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Left Column: Categories quick info & Recent Expenses -->
+                    <div class="dashboard-column">
+                        <!-- Category Mini Overview Grid -->
+                        <div class="categories-preview-grid" id="categoriesMiniGrid">
+                            <!-- Dynamic Content -->
+                        </div>
+
+                        <!-- Recent Expenses Table -->
+                        <div class="expenses-panel glass-panel">
+                            <div class="panel-header">
+                                <h2>
+                                    <i data-lucide="receipt"></i>
+                                    <span>Lista de Despesas</span>
+                                </h2>
+                                <span class="metric-change" id="expensesFilteredCount">Mostrando tudo</span>
+                            </div>
+
+                            <!-- Search & Filter Controls -->
+                            <div class="expenses-controls">
+                                <div class="search-box-wrapper">
+                                    <i data-lucide="search"></i>
+                                    <input type="text" class="search-input" id="searchExpenseInput"
+                                        placeholder="Procurar despesa por descrição...">
+                                </div>
+                                <select class="filter-select" id="filterCategorySelect">
+                                    <option value="all">Todas as Categorias</option>
+                                    <!-- Dynamic categories loaded in js -->
+                                </select>
+                            </div>
+
+                            <!-- Expenses Table wrapper -->
+                            <div class="expenses-list-container">
+                                <table class="expenses-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="sortable-th" data-sort="description"
+                                                onclick="handleExpenseSort('description')">
+                                                Descrição <span class="sort-icon" id="sort-icon-description">↕</span>
+                                            </th>
+                                            <th class="sortable-th" data-sort="category"
+                                                onclick="handleExpenseSort('category')">
+                                                Categoria <span class="sort-icon" id="sort-icon-category">↕</span>
+                                            </th>
+                                            <th class="sortable-th" data-sort="date"
+                                                onclick="handleExpenseSort('date')">
+                                                Data <span class="sort-icon" id="sort-icon-date">↕</span>
+                                            </th>
+                                            <th class="sortable-th" data-sort="amount"
+                                                onclick="handleExpenseSort('amount')" style="text-align: right;">
+                                                Valor <span class="sort-icon" id="sort-icon-amount">↕</span>
+                                            </th>
+                                            <th style="text-align: right; width: 60px;">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="expensesTableBody">
+                                        <!-- Dynamic table rows -->
+                                    </tbody>
+                                </table>
+
+                                <!-- Empty state layout -->
+                                <div class="empty-state" id="expensesEmptyState" style="display: none;">
+                                    <i data-lucide="receipt-text"></i>
+                                    <h3>Nenhuma despesa encontrada</h3>
+                                    <p>Clique em "Nova Despesa" para cadastrar um gasto neste mês ou mude os filtros de
+                                        busca.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Incomes Table -->
+                        <div class="expenses-panel glass-panel" id="incomesPanel">
+                            <div class="panel-header">
+                                <h2>
+                                    <i data-lucide="banknote" style="color: var(--color-success);"></i>
+                                    <span>Lista de Receitas</span>
+                                </h2>
+                                <span class="metric-change positive" id="incomesFilteredCount">Mostrando tudo</span>
+                            </div>
+
+                            <!-- Incomes Table wrapper -->
+                            <div class="expenses-list-container">
+                                <table class="expenses-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Descrição</th>
+                                            <th>Categoria</th>
+                                            <th>Data</th>
+                                            <th style="text-align: right;">Valor</th>
+                                            <th style="text-align: right; width: 60px;">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="incomesTableBody">
+                                        <!-- Dynamic table rows -->
+                                    </tbody>
+                                </table>
+
+                                <!-- Empty state for incomes -->
+                                <div class="empty-state" id="incomesEmptyState" style="display: none;">
+                                    <i data-lucide="banknote"></i>
+                                    <h3>Nenhuma receita cadastrada</h3>
+                                    <p>Clique em "Nova Receita" para registrar um ganho neste mês.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Pie Chart and Textual detail progress bars -->
+                    <div class="dashboard-column">
+                        <!-- Donut Chart Panel -->
+                        <div class="chart-panel glass-panel">
+                            <div class="panel-header">
+                                <h2>
+                                    <i data-lucide="pie-chart"></i>
+                                    <span>Distribuição de Gastos</span>
+                                </h2>
+                            </div>
+
+                            <!-- Canvas wrapper for Chart.js -->
+                            <div class="canvas-container">
+                                <canvas id="expensesDonutChart"></canvas>
+                                <div class="empty-state" id="chartEmptyState"
+                                    style="display: none; position: absolute; background: var(--card-bg); width:100%; height:100%; top:0; left:0; border-radius:12px;">
+                                    <i data-lucide="pie-chart" style="font-size: 36px;"></i>
+                                    <p style="font-size: 13px;">Sem despesas para exibir o gráfico.</p>
+                                </div>
+                            </div>
+
+                            <!-- Detailed progress bars per category -->
+                            <div class="category-breakdown-list" id="categoryBreakdownList">
+                                <!-- Dynamic progress rows -->
+                            </div>
+                        </div>
+
+                        <div class="glass-panel" id="savingsGoalPanel" style="margin-top: 16px;">
+                            <div class="panel-header">
+                                <h2>
+                                    <i data-lucide="piggy-bank"></i>
+                                    <span>Meta de Economia</span>
+                                </h2>
+                                <button class="btn-edit-expense" id="openSavingsGoalModalBtn" title="Definir Meta">
+                                    <i data-lucide="pencil"></i>
+                                </button>
+                            </div>
+                            <div style="padding: 0 4px 8px;">
+                                <div id="savingsGoalContent">
+                                    <p style="font-size:13px; color: var(--color-text-secondary); margin-bottom:12px;"
+                                        id="savingsGoalSubtitle">Nenhuma meta definida para este mês.</p>
+                                    <div id="savingsGoalBar" style="display:none;">
+                                        <div
+                                            style="display:flex; justify-content:space-between; font-size:12px; color:var(--color-text-secondary); margin-bottom:6px;">
+                                            <span id="savingsGoalCurrentLabel">Economizado: R$ 0,00</span>
+                                            <span id="savingsGoalTargetLabel">Meta: R$ 0,00</span>
+                                        </div>
+                                        <div class="progressbar-track">
+                                            <div class="progressbar-fill" id="savingsGoalFill"
+                                                style="width:0%; background: var(--color-success); transition: width 0.5s ease;">
+                                            </div>
+                                        </div>
+                                        <div
+                                            style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                                            <span id="savingsGoalPct"
+                                                style="font-size:22px; font-weight:700; color:var(--color-success);">0%</span>
+                                            <span id="savingsGoalStatus"
+                                                style="font-size:12px; color:var(--color-text-secondary);"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================================
+                 TAB 2: MONTH COMPARISON
+                 ========================================================================== -->
+            <section class="tab-content" id="comparisonTab" style="display: none;">
+                <div class="comparison-container">
+                    <!-- Selector Dropdowns Panel -->
+                    <div class="comparison-selectors-panel glass-panel">
+                        <div class="selectors-row">
+                            <div class="selector-group">
+                                <label for="compMonthASelect">Mês de Referência (A)</label>
+                                <select class="comparison-select" id="compMonthASelect">
+                                    <!-- Dynamic month choices -->
+                                </select>
+                            </div>
+
+                            <button class="comparison-icon-divider" id="swapComparisonMonthsBtn"
+                                title="Inverter Meses de Comparação">
+                                <i data-lucide="arrow-left-right"></i>
+                            </button>
+
+                            <div class="selector-group">
+                                <label for="compMonthBSelect">Mês para Comparar (B)</label>
+                                <select class="comparison-select" id="compMonthBSelect">
+                                    <!-- Dynamic month choices -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="header-title-section" style="max-width: 400px; text-align: right;">
+                            <p style="font-size: 14px; font-weight: 500;">Dica de análise:</p>
+                            <p style="font-size: 13px; color: var(--text-muted);">Veja a diferença real de economia e
+                                distribuição de despesas por categoria entre dois meses do seu histórico.</p>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Side by Side Metrics -->
+                    <div class="comparison-metrics-grid" id="comparisonMetricsGrid">
+                        <!-- Budget Comparison Card -->
+                        <div class="comp-metric-card glass-panel" style="border-left: 4px solid var(--color-primary);">
+                            <span class="comp-metric-title">Comparação de Orçamento</span>
+                            <div class="comp-metric-months-values">
+                                <div class="comp-month-data">
+                                    <span class="comp-month-label" id="compLabelMonthA1">Mês A</span>
+                                    <span class="comp-month-val" id="compValMonthABudget">R$ 0,00</span>
+                                </div>
+                                <div class="comp-month-data" style="text-align: right;">
+                                    <span class="comp-month-label" id="compLabelMonthB1">Mês B</span>
+                                    <span class="comp-month-val" id="compValMonthBBudget">R$ 0,00</span>
+                                </div>
+                            </div>
+                            <div class="comp-diff-analysis">
+                                <span class="comp-diff-label">Diferença Limite</span>
+                                <div class="comp-diff-val-badge" id="compBudgetDiffBadge">
+                                    <span>0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Spent Comparison Card -->
+                        <div class="comp-metric-card glass-panel" style="border-left: 4px solid var(--color-danger);">
+                            <span class="comp-metric-title">Comparação de Despesas</span>
+                            <div class="comp-metric-months-values">
+                                <div class="comp-month-data">
+                                    <span class="comp-month-label" id="compLabelMonthA2">Mês A</span>
+                                    <span class="comp-month-val" id="compValMonthASpent">R$ 0,00</span>
+                                </div>
+                                <div class="comp-month-data" style="text-align: right;">
+                                    <span class="comp-month-label" id="compLabelMonthB2">Mês B</span>
+                                    <span class="comp-month-val" id="compValMonthBSpent">R$ 0,00</span>
+                                </div>
+                            </div>
+                            <div class="comp-diff-analysis">
+                                <span class="comp-diff-label">Economia no Mês B</span>
+                                <div class="comp-diff-val-badge" id="compSpentDiffBadge">
+                                    <span>0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Savings Comparison Card -->
+                        <div class="comp-metric-card glass-panel" style="border-left: 4px solid var(--color-success);">
+                            <span class="comp-metric-title">Comparação de Saldo Livre</span>
+                            <div class="comp-metric-months-values">
+                                <div class="comp-month-data">
+                                    <span class="comp-month-label" id="compLabelMonthA3">Mês A</span>
+                                    <span class="comp-month-val" id="compValMonthASavings">R$ 0,00</span>
+                                </div>
+                                <div class="comp-month-data" style="text-align: right;">
+                                    <span class="comp-month-label" id="compLabelMonthB3">Mês B</span>
+                                    <span class="comp-month-val" id="compValMonthBSavings">R$ 0,00</span>
+                                </div>
+                            </div>
+                            <div class="comp-diff-analysis">
+                                <span class="comp-diff-label">Evolução do Saldo</span>
+                                <div class="comp-diff-val-badge" id="compSavingsDiffBadge">
+                                    <span>0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Double Bar Chart -->
+                    <div class="comparison-charts-panel glass-panel">
+                        <div class="panel-header">
+                            <h2>
+                                <i data-lucide="line-chart"></i>
+                                <span id="compChartTitle">Gasto por Categoria: Mês A vs Mês B</span>
+                            </h2>
+                        </div>
+
+                        <div class="comparison-canvas-container">
+                            <canvas id="comparisonBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================================
+                 TAB 3: CATEGORY MANAGEMENT
+                 ========================================================================== -->
+            <section class="tab-content" id="categoriesTab" style="display: none;">
+                <div class="categories-manager-grid">
+                    <!-- Left: Category creation form -->
+                    <div class="category-form-panel glass-panel">
+                        <div class="panel-header">
+                            <h2>
+                                <i data-lucide="tag"></i>
+                                <span>Nova Categoria</span>
+                            </h2>
+                        </div>
+
+                        <form class="modal-body-form" id="createCategoryForm" onsubmit="event.preventDefault();">
+
+                            <div class="form-group">
+                                <label>Tipo da Categoria</label>
+                                <div style="display:flex; gap:10px; margin-top:4px;">
+                                    <label
+                                        style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:400;">
+                                        <input type="radio" name="editCatType" id="editCatTypeExpense" value="expense"
+                                            style="accent-color: var(--color-danger); width:16px; height:16px;">
+                                        <span style="color:var(--color-danger);">💸 Despesa</span>
+                                    </label>
+                                    <label
+                                        style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:400;">
+                                        <input type="radio" name="editCatType" id="editCatTypeIncome" value="income"
+                                            style="accent-color: var(--color-success); width:16px; height:16px;">
+                                        <span style="color:var(--color-success);">💰 Receita</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newCatNameInput">Nome da Categoria</label>
+                                <input type="text" class="form-input" id="newCatNameInput"
+                                    placeholder="Ex: Supermercado, Assinaturas..." required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Escolha uma Cor</label>
+                                <div class="colors-row-selector" id="colorsSelectorRow">
+                                    <!-- Dynamic standard colors injected by JS -->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Escolha um Ícone</label>
+                                <div class="icons-grid-selector" id="iconsGridSelector">
+                                    <!-- Dynamic standard icons injected by JS -->
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="saveNewCategoryBtn"
+                                style="margin-top: 12px; width: 100%; justify-content: center;">
+                                <i data-lucide="check-circle-2"></i>
+                                Criar Categoria
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right: Existing Categories list -->
+                    <div class="categories-display-panel glass-panel">
+                        <div class="panel-header">
+                            <h2>
+                                <i data-lucide="tags"></i>
+                                <span>Categorias Ativas</span>
+                            </h2>
+                        </div>
+
+                        <div class="categories-list-container" id="categoryManagerList">
+                            <!-- Dynamic category cards -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================================
+                 TAB 4: HISTORICAL EVOLUTION
+                 ========================================================================== -->
+            <section class="tab-content" id="evolutionTab" style="display: none;">
+                <div class="evolution-container">
+                    <!-- Range Selector Panel -->
+                    <div class="comparison-selectors-panel glass-panel"
+                        style="padding: 16px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <div class="selectors-row"
+                            style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                            <div class="selector-group">
+                                <label for="evoStartMonthSelect">Mês Inicial</label>
+                                <select class="comparison-select" id="evoStartMonthSelect">
+                                    <!-- Dynamic month choices -->
+                                </select>
+                            </div>
+
+                            <div
+                                style="color: var(--text-muted); font-size: 18px; margin-top: 20px; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="arrow-right"></i>
+                            </div>
+
+                            <div class="selector-group">
+                                <label for="evoEndMonthSelect">Mês Final</label>
+                                <select class="comparison-select" id="evoEndMonthSelect">
+                                    <!-- Dynamic month choices -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="header-title-section" style="max-width: 400px; text-align: right;">
+                            <p style="font-size: 14px; font-weight: 500; margin-bottom: 2px;">Filtro de Período</p>
+                            <p style="font-size: 13px; color: var(--text-muted);">Defina o intervalo de meses para
+                                analisar a evolução dos gastos e do planejamento.</p>
+                        </div>
+                    </div>
+
+                    <!-- Evolution Chart Panel -->
+                    <div class="evolution-chart-panel glass-panel" style="padding: 24px; margin-bottom: 24px;">
+                        <div class="panel-header">
+                            <h2>
+                                <i data-lucide="trending-up"></i>
+                                <span>Evolução Financeira Mensal</span>
+                            </h2>
+                        </div>
+                        <div class="evolution-canvas-container" style="position: relative; height: 350px; width: 100%;">
+                            <canvas id="evolutionLineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Evolution Metrics Cards -->
+                    <div class="evolution-metrics-grid" id="evolutionMetricsGrid"
+                        style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                        <!-- Average Budget Card -->
+                        <div class="comp-metric-card glass-panel"
+                            style="border-left: 4px solid var(--color-success); padding: 20px;">
+                            <span class="comp-metric-title"
+                                style="font-size: 14px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Média
+                                de Receitas</span>
+                            <div style="margin-top: 12px; display: flex; align-items: baseline; gap: 8px;">
+                                <span class="metric-value" id="evoAvgBudget"
+                                    style="font-size: 24px; font-weight: 700;">R$ 0,00</span>
+                                <span class="metric-label"
+                                    style="font-size: 12px; text-transform: none; color: var(--text-muted);">/
+                                    mês</span>
+                            </div>
+                        </div>
+
+                        <!-- Average Spent Card -->
+                        <div class="comp-metric-card glass-panel"
+                            style="border-left: 4px solid var(--color-danger); padding: 20px;">
+                            <span class="comp-metric-title"
+                                style="font-size: 14px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Média
+                                de Gastos</span>
+                            <div style="margin-top: 12px; display: flex; align-items: baseline; gap: 8px;">
+                                <span class="metric-value" id="evoAvgSpent"
+                                    style="font-size: 24px; font-weight: 700;">R$ 0,00</span>
+                                <span class="metric-label"
+                                    style="font-size: 12px; text-transform: none; color: var(--text-muted);">/
+                                    mês</span>
+                            </div>
+                        </div>
+
+                        <!-- Net Total Saved Card -->
+                        <div class="comp-metric-card glass-panel"
+                            style="border-left: 4px solid var(--color-success); padding: 20px;">
+                            <span class="comp-metric-title"
+                                style="font-size: 14px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Saldo
+                                Acumulado Salvo</span>
+                            <div style="margin-top: 12px; display: flex; align-items: baseline; gap: 8px;">
+                                <span class="metric-value" id="evoTotalSavings"
+                                    style="font-size: 24px; font-weight: 700;">R$ 0,00</span>
+                                <span class="metric-label"
+                                    style="font-size: 12px; text-transform: none; color: var(--text-muted);">saldo
+                                    total</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ==========================================================================
+         MODALS POPUPS
+         ========================================================================== -->
+
+    <!-- Toast Notification -->
+    <div id="spendingToast"
+        style="display:none; position:fixed; bottom:24px; right:24px; z-index:9999; min-width:320px; max-width:380px;">
+        <div class="glass-panel"
+            style="border-left: 4px solid var(--toast-color, var(--color-warning)); padding: 14px 16px; display:flex; align-items:flex-start; gap:12px;">
+            <div style="color: var(--toast-color, var(--color-warning)); flex-shrink:0; margin-top:2px;">
+                <i data-lucide="alert-triangle" style="width:20px; height:20px;"></i>
+            </div>
+            <div style="flex:1;">
+                <div style="font-weight:600; font-size:14px; margin-bottom:3px;" id="toastTitle">Atenção</div>
+                <div style="font-size:13px; color:var(--color-text-secondary);" id="toastMessage">Mensagem</div>
+            </div>
+            <button onclick="closeToast()"
+                style="background:none; border:none; cursor:pointer; color:var(--color-text-secondary); padding:0; flex-shrink:0;">
+                <i data-lucide="x" style="width:16px; height:16px;"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Alert Threshold Settings -->
+    <div class="modal-overlay" id="alertThresholdModal">
+        <div class="modal-box glass-panel">
+            <div class="modal-header">
+                <h3>Configurar Alerta de Gastos</h3>
+                <button class="btn-close-modal" id="closeAlertThresholdModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body-form">
+                <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:16px;">
+                    Defina a partir de qual percentual da receita você quer ser avisado sobre seus gastos.
+                </p>
+                <div class="form-group">
+                    <label for="alertThresholdInput">Alertar quando gastos atingirem (%)</label>
+                    <input type="number" class="form-input" id="alertThresholdInput" placeholder="Ex: 80" min="1"
+                        max="100" step="1">
+                </div>
+                <p style="font-size:12px; color:var(--color-text-secondary); margin-top:4px;">
+                    Digite 0 para desativar o alerta.
+                </p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelAlertThresholdBtn">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveAlertThresholdBtn">
+                        <i data-lucide="check-circle-2"></i>
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Generic Confirm -->
+    <div class="modal-overlay" id="genericConfirmModal">
+        <div class="modal-box glass-panel reset-confirm-box">
+            <div class="reset-confirm-icon">
+                <i data-lucide="alert-triangle"></i>
+            </div>
+            <div class="reset-confirm-content">
+                <h3 id="genericConfirmTitle">Confirmar ação</h3>
+                <p id="genericConfirmMessage">Tem certeza que deseja continuar?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="genericConfirmCancelBtn">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="genericConfirmOkBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 1: Add/Edit Expense Modal -->
+    <div class="modal-overlay" id="expenseModal">
+        <div class="modal-box glass-panel">
+            <div class="modal-header">
+                <h3 id="expenseModalTitle">Cadastrar Gasto</h3>
+                <button class="btn-close-modal" id="closeExpenseModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <form class="modal-body-form" id="expenseForm" onsubmit="event.preventDefault();">
+                <div class="form-group">
+                    <label for="expenseDescription">Descrição</label>
+                    <input type="text" class="form-input" id="expenseDescription"
+                        placeholder="Ex: Mercado mensal, Uber..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="expenseAmount">Valor (R$)</label>
+                    <input type="number" step="0.01" class="form-input" id="expenseAmount" placeholder="0,00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="expenseCategorySelect">Categoria</label>
+                    <select class="form-input" id="expenseCategorySelect" required>
+                        <!-- Dynamic choices -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="expenseDate">Data da Despesa</label>
+                    <input type="date" class="form-input" id="expenseDate" required>
+                </div>
+
+                <div class="form-group checkbox-group"
+                    style="display: flex; flex-direction: row; align-items: center; gap: 8px; margin: 12px 0 4px 0;">
+                    <input type="checkbox" id="expenseRecurring"
+                        style="width: 18px; height: 18px; accent-color: var(--color-primary); cursor: pointer;">
+                    <label for="expenseRecurring"
+                        style="margin-bottom: 0; cursor: pointer; user-select: none; font-size: 14px; color: var(--text-secondary);">Marcar
+                        como Despesa Recorrente (Mensal)</label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelExpenseBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="saveExpenseBtn">Salvar Despesa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal 3: Edit Category Modal -->
+    <div class="modal-overlay" id="editCategoryModal">
+        <div class="modal-box glass-panel">
+            <div class="modal-header">
+                <h3>Editar Categoria</h3>
+                <button class="btn-close-modal" id="closeEditCategoryModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <form class="modal-body-form" id="editCategoryForm" onsubmit="event.preventDefault();">
+                <input type="hidden" id="editCatIdInput">
+
+                <div class="form-group">
+                    <label for="newCatNameInput">Nome da Categoria</label>
+                    <input type="text" class="form-input" id="newCatNameInput"
+                        placeholder="Ex: Supermercado, Assinaturas..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo da Categoria</label>
+                    <div style="display:flex; gap:10px; margin-top:4px;">
+                        <label
+                            style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:400;">
+                            <input type="radio" name="editCatType" id="editCatTypeExpense" value="expense" checked
+                                style="accent-color: var(--color-danger); width:16px; height:16px;">
+                            <span style="color:var(--color-danger);">💸 Despesa</span>
+                        </label>
+                        <label
+                            style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:400;">
+                            <input type="radio" name="editCatType" id="editCatTypeIncome" value="income"
+                                style="accent-color: var(--color-success); width:16px; height:16px;">
+                            <span style="color:var(--color-success);">💰 Receita</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Escolha uma Cor</label>
+                    <div class="colors-row-selector" id="editColorsSelectorRow">
+                        <!-- Dynamic standard colors injected by JS -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Escolha um Ícone</label>
+                    <div class="icons-grid-selector" id="editIconsGridSelector">
+                        <!-- Dynamic standard icons injected by JS -->
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelEditCategoryBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="saveEditCategoryBtn">
+                        <i data-lucide="check-circle-2"></i>
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="resetConfirmModal">
+        <svg xmlns="..." width="28" height="28" viewBox="0 0 24 24">
+            <path d="M10.29 3.86L1.82 18..."></path>
+            <line x1="12" y1="9" x2="12" y2="13">
+            </line> <!-- ícone de alerta em SVG -->
+        </svg>
+        <div class="modal-box glass-panel reset-confirm-box">
+
+            <div class="reset-confirm-icon">
+                <i data-lucide="alert-triangle"></i>
+            </div>
+
+            <div class="reset-confirm-content">
+                <h3>Zerar Mês Atual?</h3>
+                <p>Apaga despesas e receitas do mês atual. Histórico mantido.</p>
+            </div>
+
+            <!-- Botões Cancelar / Zerar Mês -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelResetBtn">
+                    Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmResetBtn">
+                    Zerar Mês</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Add/Edit Income Modal -->
+    <div class="modal-overlay" id="incomeModal">
+        <div class="modal-box glass-panel">
+            <div class="modal-header">
+                <h3 id="incomeModalTitle">Cadastrar Receita</h3>
+                <button class="btn-close-modal" id="closeIncomeModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <form class="modal-body-form" id="incomeForm" onsubmit="event.preventDefault();">
+                <div class="form-group">
+                    <label for="incomeDescription">Descrição</label>
+                    <input type="text" class="form-input" id="incomeDescription"
+                        placeholder="Ex: Salário, Freelance, Dividendos..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="incomeAmount">Valor (R$)</label>
+                    <input type="number" step="0.01" class="form-input" id="incomeAmount" placeholder="0,00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="incomeCategorySelect">Categoria de Receita</label>
+                    <select class="form-input" id="incomeCategorySelect" required>
+                        <!-- Preenchido dinamicamente -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="incomeDate">Data do Recebimento</label>
+                    <input type="date" class="form-input" id="incomeDate" required>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelIncomeBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-success" id="saveIncomeBtn">
+                        <i data-lucide="check-circle-2"></i>
+                        Salvar Receita
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <div class="modal-overlay" id="savingsGoalModal">
+        <div class="modal-box glass-panel">
+            <div class="modal-header">
+                <h3>Definir Meta de Economia</h3>
+                <button class="btn-close-modal" id="closeSavingsGoalModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body-form">
+                <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:16px;">
+                    Defina quanto você quer economizar este mês. O app vai mostrar seu progresso automaticamente.
+                </p>
+                <div class="form-group">
+                    <label for="savingsGoalInput">Meta de Economia (R$)</label>
+                    <input type="number" class="form-input" id="savingsGoalInput" placeholder="Ex: 500,00" min="0"
+                        step="0.01">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelSavingsGoalBtn">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveSavingsGoalBtn">
+                        <i data-lucide="check-circle-2"></i>
+                        Salvar Meta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Savings Goal -->
+    <div class="modal-overlay" id="savingsGoalModal">
+        <div class="modal-box glass-panel">
+            <div class="modal-header">
+                <h3>Definir Meta de Economia</h3>
+                <button class="btn-close-modal" id="closeSavingsGoalModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body-form">
+                <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:16px;">
+                    Defina quanto você quer economizar este mês. O app vai mostrar seu progresso automaticamente.
+                </p>
+                <div class="form-group">
+                    <label for="savingsGoalInput">Meta de Economia (R$)</label>
+                    <input type="number" class="form-input" id="savingsGoalInput" placeholder="Ex: 500,00" min="0"
+                        step="0.01">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelSavingsGoalBtn">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveSavingsGoalBtn">
+                        <i data-lucide="check-circle-2"></i>
+                        Salvar Meta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Import CSV - Step 1: Upload & Map Columns -->
+    <div class="modal-overlay" id="importCsvModal">
+        <div class="modal-box glass-panel" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Importar Extrato CSV</h3>
+                <button class="btn-close-modal" id="closeImportModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body-form" id="importStep1">
+                <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:16px;">
+                    Faça upload do arquivo CSV do seu banco. Você poderá mapear as colunas antes de importar.
+                </p>
+                <div class="form-group">
+                    <label for="csvFileInput">Arquivo CSV</label>
+                    <input type="file" class="form-input" id="csvFileInput" accept=".csv" style="padding: 8px;">
+                </div>
+                <div class="form-group">
+                    <label for="csvSeparatorInput">Separador de colunas</label>
+                    <select class="form-input" id="csvSeparatorInput">
+                        <option value=",">Vírgula ( , )</option>
+                        <option value=";">Ponto e vírgula ( ; )</option>
+                        <option value="	">Tab</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelImportBtn">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="parseImportCsvBtn">
+                        <i data-lucide="arrow-right"></i>
+                        Próximo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Map Columns -->
+            <div class="modal-body-form" id="importStep2" style="display:none;">
+                <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:16px;">
+                    Identifique quais colunas do seu CSV correspondem a cada campo.
+                </p>
+                <div class="form-group">
+                    <label for="importColDate">Coluna de Data</label>
+                    <select class="form-input" id="importColDate"></select>
+                </div>
+                <div class="form-group">
+                    <label for="importColDesc">Coluna de Descrição</label>
+                    <select class="form-input" id="importColDesc"></select>
+                </div>
+                <div class="form-group">
+                    <label for="importColAmount">Coluna de Valor</label>
+                    <select class="form-input" id="importColAmount"></select>
+                </div>
+                <div class="form-group">
+                    <label for="importColType">Coluna de Tipo (opcional — débito/crédito)</label>
+                    <select class="form-input" id="importColType">
+                        <option value="">Não usar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="importDefaultCategory">Categoria padrão para despesas</label>
+                    <select class="form-input" id="importDefaultCategory"></select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="backImportBtn">
+                        <i data-lucide="arrow-left"></i> Voltar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="previewImportBtn">
+                        <i data-lucide="eye"></i> Ver Prévia
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Preview & Confirm -->
+            <div id="importStep3" style="display:none; padding: 0 24px 24px;">
+                <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">
+                    Revise os itens abaixo. Desmarque os que não quer importar.
+                </p>
+                <div id="importPreviewList"
+                    style="max-height:320px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+                <div class="modal-footer" style="margin-top:16px;">
+                    <button type="button" class="btn btn-secondary" id="backImportStep3Btn">
+                        <i data-lucide="arrow-left"></i> Voltar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="confirmImportBtn">
+                        <i data-lucide="check-circle-2"></i>
+                        Importar Selecionados
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Export Report -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal-box glass-panel">
+            <div class="modal-header">
+                <h3>Exportar Relatório</h3>
+                <button class="btn-close-modal" id="closeExportModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body-form">
+                <div class="form-group">
+                    <label for="exportStartMonth">Mês Inicial</label>
+                    <select class="form-input" id="exportStartMonth"></select>
+                </div>
+                <div class="form-group">
+                    <label for="exportEndMonth">Mês Final</label>
+                    <select class="form-input" id="exportEndMonth"></select>
+                </div>
+                <p style="font-size: 13px; color: var(--color-text-secondary); margin: 4px 0 16px;">
+                    O relatório incluirá todas as receitas e despesas do período selecionado.
+                </p>
+                <div class="modal-footer" style="gap: 10px;">
+                    <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="exportExcelBtn">
+                        <i data-lucide="table-2"></i>
+                        Excel
+                    </button>
+                    <button type="button" class="btn btn-success" id="exportPdfBtn">
+                        <i data-lucide="file-text"></i>
+                        PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Javascript implementation -->
+    <script src="app.js"></script>
+</body>
+
+</html>
